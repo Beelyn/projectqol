@@ -1,5 +1,4 @@
-mapboxgl.accessToken = 'pk.eyJ1IjoiYnJvb2sxMjM0IiwiYSI6ImNsbWhyMXJkajA3NDkzZnFzZXV6YW5lZ3QifQ.DxTQHB79qDgP4XTX_GbpKA'; // Replace with your Mapbox access token
- // Replace with your Mapbox access token
+mapboxgl.accessToken = 'pk.eyJ1IjoiYnJvb2sxMjM0IiwiYSI6ImNsbWhyMXJkajA3NDkzZnFzZXV6YW5lZ3QifQ.DxTQHB79qDgP4XTX_GbpKA';
 
 const map = new mapboxgl.Map({
     container: 'map',
@@ -45,7 +44,7 @@ map.on('load', function() {
         }
     });
 });
-
+//Geo code
 function geocodeDestination(query, callback) {
     const geocodingAPI = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}`;
 
@@ -64,27 +63,7 @@ function geocodeDestination(query, callback) {
         });
 }
 
-// function fetchRoute(start, end, type, callback) {
-//     const directionsAPI = `https://api.mapbox.com/directions/v5/mapbox/${type}/${start[0]},${start[1]};${end[0]},${end[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
-
-//     fetch(directionsAPI)
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data && data.routes && data.routes[0] && data.routes[0].geometry) {
-//                 const routeCoordinates = data.routes[0].geometry.coordinates;
-//                 const distance = data.routes[0].distance / 1000;
-//                 const duration = data.routes[0].duration / 60;
-//                 callback(routeCoordinates, distance, duration);
-//             } else {
-//                 callback(null, 0, 0);
-//             }
-//         })
-//         .catch(error => {
-//             console.error("Error fetching route:", error);
-//             callback(null, 0, 0);
-//         });
-// }
-
+//Dynamic Fetch route
 function fetchRoute(start, end, type, callback) {
     const directionsAPI = `https://api.mapbox.com/directions/v5/mapbox/${type}/${start[0]},${start[1]};${end[0]},${end[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
 
@@ -110,6 +89,7 @@ function fetchRoute(start, end, type, callback) {
 
 
 
+//Transportation and QOL Scores table
 
 function updateTransportationTable() {
     const thead = document.querySelector('#transportationTable thead');
@@ -161,6 +141,7 @@ function updateTransportationTable() {
 
 }
 
+//QOL calculation
 function calculateQOLScore(distance, time) {
     const variables = [distance, time];
     const weights = [4, 1.66];
@@ -227,7 +208,7 @@ function updateQOLTable() {
 
 
 
-
+//Add type box
 document.getElementById('addDestination').addEventListener('click', function() {
     const inputWrapper = document.createElement('div');
     inputWrapper.className = 'inputWrapper';
@@ -244,7 +225,7 @@ document.getElementById('addDestination').addEventListener('click', function() {
 
     document.getElementById('destinationInputs').appendChild(inputWrapper);
 });
-
+//Geocoding box
 document.getElementById('destinationInputs').addEventListener('input', function(e) {
     if (e.target && e.target.className === 'destinationInput') {
         const query = e.target.value;
@@ -277,7 +258,8 @@ document.getElementById('destinationInputs').addEventListener('change', function
                 if (!startPoint) {
                     startPoint = coordinates;
                     endPoint = coordinates;
-                } else {
+                } else //route driving-traffic and drawline
+                {
                     fetchRoute(endPoint, coordinates, 'driving-traffic', function(routeCoordinates, distance, duration) {
                         if (routeCoordinates) {
                             const segmentInfo = {
@@ -314,6 +296,7 @@ document.getElementById('destinationInputs').addEventListener('change', function
                                 }
                             });
 
+                            //Total Distance and total time in html
                             currentColorIndex = (currentColorIndex + 1) % colors.length;
 
                             totalDistance += distance;
@@ -322,6 +305,8 @@ document.getElementById('destinationInputs').addEventListener('change', function
                             document.getElementById('totalTime').textContent = totalTime.toFixed(2);
 
                             endPoint = coordinates;
+
+                            //segment information:
 
                             const li = document.createElement('li');
                             li.textContent = `From [${segmentInfo.start}] to [${segmentInfo.end}]: Distance = ${segmentInfo.distance} km, Time = ${segmentInfo.time} mins`;
@@ -345,55 +330,5 @@ document.getElementById('destinationInputs').addEventListener('change', function
 });
 
 
-// // After updating the segmentsData array:
-// const select = document.createElement('select');
-// select.id = `segment-${segmentsData.length - 1}`;
-// segmentsData[segmentsData.length - 1].transportationTypes.forEach(type => {
-//     const option = document.createElement('option');
-//     option.value = type.type;
-//     option.textContent = `${type.type} (QOL: ${calculateQOLScore(type.distance, type.time).toFixed(2)})`;
-//     select.appendChild(option);
-// });
-// document.getElementById('qolSelection').appendChild(select);
 
-document.getElementById('drawRoute').addEventListener('click', function() {
-    // Clear existing routes from the map
-    segmentsData.forEach((segment, index) => {
-        if (map.getLayer(`route-${index}`)) {
-            map.removeLayer(`route-${index}`);
-            map.removeSource(`route-${index}`);
-        }
-    });
-
-    // Draw the selected routes
-    segmentsData.forEach((segment, index) => {
-        const selectedType = document.getElementById(`segment-${index}`).value;
-        const typeData = segment.transportationTypes.find(type => type.type === selectedType);
-        if (typeData && typeData.routeCoordinates) {
-            map.addLayer({
-                'id': `route-${index}`,
-                'type': 'line',
-                'source': {
-                    'type': 'geojson',
-                    'data': {
-                        'type': 'Feature',
-                        'properties': {},
-                        'geometry': {
-                            'type': 'LineString',
-                            'coordinates': typeData.routeCoordinates
-                        }
-                    }
-                },
-                'layout': {
-                    'line-join': 'round',
-                    'line-cap': 'round'
-                },
-                'paint': {
-                    'line-color': segment.color,
-                    'line-width': 4
-                }
-            });
-        }
-    });
-});
 
