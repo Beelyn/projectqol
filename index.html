@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapbox 3D Plan Schedule with Road Directions</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+
+        #destinationBox,
+        #pointsList,
+        #segmentsInfo,
+        #transportationTable {
+            position: absolute;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        #destinationBox {
+            top: 10px;
+            left: 10px;
+        }
+
+        #pointsList {
+            top: 10px;
+            right: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #segmentsInfo {
+            bottom: 10px;
+            left: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #transportationTable {
+            bottom: 10px;
+            right: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #addDestination {
+            margin-top: 10px;
+        }
+
+        .suggestions {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute;
+            width: calc(100% - 2px);
+            background-color: white;
+            z-index: 2;
+        }
+
+        .suggestions p {
+            padding: 5px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .suggestions p:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="destinationBox">
+        <h3>Enter Destinations:</h3>
+        <div id="destinationInputs">
+            <div class="inputWrapper">
+                <input type="text" class="destinationInput" placeholder="Type a destination...">
+                <div class="suggestions"></div>
+            </div>
+        </div>
+        <button id="addDestination">+</button>
+    </div>
+    <div id="map"></div>
+    <div id="info">
+        <p><strong>Total Distance:</strong> <span id="totalDistance">0</span> km</p>
+        <p><strong>Total Time:</strong> <span id="totalTime">0</span> mins</p>
+    </div>
+    <div id="pointsList">
+        <h3>Selected Points:</h3>
+        <ul id="points"></ul>
+    </div>
+    <div id="segmentsInfo">
+        <h3>Segment Information:</h3>
+        <ul id="segments"></ul>
+    </div>
+    <div id="qolBox">
+        <h3>QOL Scores:</h3>
+        <table id="qolTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- useless -->
+    <div id="qolSelection">
+        <h3>Select Route based on QOL Scores:</h3>
+        <!-- Dropdowns for each segment will be dynamically added here -->
+        <button id="drawRoute">Draw Selected Route</button>
+    </div>
+    <!-- useless -->
+    <!-- ... (rest of the HTML code remains unchanged) ... -->
+
+    <div id="qolScores">
+        <h3>QOL Scores</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Segment</th>
+                    <th>Transportation Type</th>
+                    <th>QOL Score</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="selectedQOLPath">
+        <h3>Selected QOL Path</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Segment</th>
+                    <th>Transportation Type</th>
+                    <th>QOL Score</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- ... (rest of the HTML code remains unchanged) ... -->
+
+
+
+    <!-- <div id="selectedQOLPath">
+        <h3>Selected QOL Path:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Segment</th>
+                    <th>Transportation Type</th>
+                    <th>QOL Score</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows for each segment will be dynamically added here -->
+    </tbody>
+    </table>
+    </div> -->
+
+
+
+    <div id="transportationTable">
+        <h3>Transportation Information:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Transportation Type</th>
+                    <!-- Segment headers will be dynamically added here -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="drivingRow">
+                    <td>Driving (Traffic)</td>
+                    <!-- Segment data for driving will be dynamically added here -->
+                </tr>
+                <tr id="cyclingRow">
+                    <td>Cycling</td>
+                    <!-- Segment data for cycling will be dynamically added here -->
+                </tr>
+                <tr id="walkingRow">
+                    <td>Walking</td>
+                    <!-- Segment data for walking will be dynamically added here -->
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
